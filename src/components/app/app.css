@@ -37,7 +37,7 @@
   }
 }
 
-.block {
+.block, .filters {
   font-family: Tahoma;
   color: #000;
   background-color: #eee;
@@ -56,4 +56,8 @@
 
 .content-link {
   display: block  ;
+}
+
+.filters__label {
+  display: block;
 }
