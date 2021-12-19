@@ -1,13 +1,27 @@
 import React, { Component } from 'react';
 
+
 export class NewsFilter extends Component {
 
+  state = {
+    checked: {},
+  }
  handleChangeSearch = (e) => {
     let { onChangeSearch } = this.props;
     let { currentTarget } = e;
     onChangeSearch(currentTarget.value);
   };
 
+handleSelect = (value) => {
+  console.log(value)
+  this.setState ({
+    checked: {
+      ...this.state.checked,
+      [value]: !this.state.checked[value],
+    }
+  })
+
+}
 
 
   render() { 
@@ -16,10 +30,34 @@ export class NewsFilter extends Component {
     hasLink,
     isSpecial,
     search,
+    hasCategory,
     onChangeHasPicture,
     onChangeHasLink,
     onChangeIsSpecial,
+    onChangeHasCategory,
+    data,
     } = this.props;
+
+    let {checked} = this.state;
+
+    let categories = data.map((el)=> {
+      let finalArr = el.categories.map((el)=>{
+        let arr=[];
+        arr.push(el.name )
+        return arr;
+      });
+      return finalArr.flat();
+    })
+
+
+
+let list = new Set(categories.flat());
+let myArr = Array.from(list)
+
+{/*this.props.onAddCategories(myArr);*/}
+
+
+
 
  
   return (
@@ -53,6 +91,20 @@ export class NewsFilter extends Component {
               onChange={this.handleChangeSearch}
             />
     </label>
+    <span><b>Categories:</b></span>
+    <div >
+   { myArr.map((value, index) => {
+  return <button key={value} style={{marginRight: 5 + 'px', marginTop: 5 + 'px'}}
+ onClick={()=> this.handleSelect(value) } checked={hasCategory}
+ >
+  {value} {this.state.checked[value] && '✅'}</button>
+})}
+</div>
+
+
+
+  
+
     </div>
   	)
 } }
