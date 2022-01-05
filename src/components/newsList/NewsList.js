@@ -60,6 +60,21 @@ onError =()=> {
 
 }
 
+    itemRefs = [];
+
+    setRef = (ref) => {
+        this.itemRefs.push(ref);
+        console.log(ref)
+    }
+
+    
+
+    focusOnItem = (id) => {
+        this.itemRefs.forEach(item => item.classList.remove('char__item_selected'));
+        this.itemRefs[id].classList.add('char__item_selected');
+        this.itemRefs[id].focus();
+    }
+
     renderItems(arr, newsItem) {
         //console.log(newsItem)
 
@@ -68,7 +83,17 @@ onError =()=> {
             return (
                 <li 
                     className="char__item"
-                    key={index} onClick={() => this.props.onNewsSelected(index)}>
+                    key={index} 
+                    onClick={() => { 
+                        this.props.onNewsSelected(index);
+                        this.focusOnItem(index);}}
+                    tabIndex={0}
+                    ref={this.setRef}
+                    key={index}
+                       onKeyPress={(e) => {
+                        if (e.key === ' ' || e.key === "Enter") {
+                             this.props.onNewsSelected(index);
+                        this.focusOnItem(index);}}}>
                         <img src={item.urlToImage} alt="news photo"/>
                         <div className="char__name">{item.title}</div>
                 </li>
@@ -84,32 +109,23 @@ onError =()=> {
     render() {
 
         const {loading, error,arr, newsItem, newsItemLoading} = this.state;
-        
-
-const items = this.renderItems(arr, newsItem);
-           
- const errorMessage = error ? <ErrorMessage/> : null;
+        const items = this.renderItems(arr, newsItem);
+        const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? items : null;
 
             
-
-    
-
-    
- return ( <div className="char__list">
-  {errorMessage}
-                {spinner}
-                {content}
-
-            <button 
-            className="button button__main button__long"
-            onClick={()=>this.setState({newsItem: newsItem + 3})}
-            style={{'display': newsItem >= 20 ? 'none' : 'block'}}>
-                <div className="inner">load more</div>
-            
-            </button>
-        </div>
+        return ( <div className="char__list">
+                        {errorMessage}
+                        {spinner}
+                        {content}
+                    <button 
+                    className="button button__main button__long"
+                    onClick={()=>this.setState({newsItem: newsItem + 3})}
+                    style={{'display': newsItem >= 20 ? 'none' : 'block'}}>
+                        <div className="inner">load more</div>
+                    </button>
+                 </div>
     )
 }
 }
