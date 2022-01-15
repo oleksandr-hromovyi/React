@@ -1,4 +1,4 @@
-import {Component} from 'react';
+import {useState, useEffect} from 'react';
 import './randomNews.scss';
 import newsIcon from '../../resources/img/newsIcon.png';
 import NewsService from '../../Services/NewsService';
@@ -7,65 +7,54 @@ import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 
 
-class RandomNews extends Component {
+const RandomNews =(props) => {
 
-    state = {
-        author: null,
-        title: null,
-        description: null,
-        url: null,
-        urlToImage: null,
-        publishedAt: null,
-        loading: true,
-        error: false,
-        
+       const [author, setAuthor] = useState(null);
+       const [title, setTitle] = useState(null);
+       const [description, setDescription] = useState(null);        
+       const [url, setUrl] = useState(null);
+       const [urlToImage, setUrlToImage] = useState(null);
+       const [publishedAt, setPublishedAt] = useState(null);
+       const [loading,  setLoading] = useState(true);
+       const [error, setError] = useState(false);
+       
      
-    };
+   useEffect (()=>{
+    updateNews();
+    
+   },[])
 
-    componentDidMount(){
-        this.updateChar();
-    }
+   const newsService = new NewsService();
 
-    newsService = new NewsService();
-
-    onNewsLoading() {
-        this.setState ({
-            loading: true,
-        })
+    const onNewsLoading = ()=> {
+       setLoading(true);
     }
 
 
-    updateChar=()=> {
+    const updateNews=()=> {
        let id = Math.floor(Math.random() * (20 - 0) + 0);
-        this.onNewsLoading();
-        this.newsService
+        onNewsLoading();
+        newsService
             .getAllNews()
             .then(res => {
-                console.log()
-                this.setState({
-                author: res.articles[id].author,
-                title: res.articles[id].title,
-                description: res.articles[id].description,
-                url: res.articles[id].url,
-                urlToImage: res.articles[id].urlToImage,
-                publishedAt: res.articles[id].publishedAt,
-                loading: false,
-                }) 
+                setAuthor(res.articles[id].author);
+                setTitle(res.articles[id].title);
+                setDescription(res.articles[id].description);
+                setUrl(res.articles[id].url)
+                setUrlToImage(res.articles[id].urlToImage);
+                setPublishedAt(res.articles[id].publishedAt);
+                setLoading(false)
             })
-            .catch(this.onError)
+            .catch(onError)
     }
 
-    onError =()=> {
+   const onError =()=> {
         console.log(`error`)
-        this.setState({
-                loading: false,
-                error: true,
-            })
+                setLoading(false);
+                setError(true);
     }
 
-    render(){
-       
-    const {error,author, title, description, url, urlToImage, publishedAt, loading} = this.state;
+
 
     const getFormattedDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -105,13 +94,12 @@ class RandomNews extends Component {
                     <p className="randomchar__title">
                         Or choose another one
                     </p>
-                    <button className="button button__main" onClick={this.updateChar}>
+                    <button className="button button__main" onClick={updateNews}>
                         <div className="inner">try it</div>
                     </button>
                     <img src={newsIcon} alt="news icon" className="randomchar__decoration" height="100px"/>
                 </div>
             </div>
         )
-} }
-
+} 
 export default RandomNews;

@@ -1,133 +1,104 @@
-import {Component} from 'react';
+import { useState, useEffect, useRef} from 'react';
 import './newsList.scss';
 import NewsService from '../../Services/NewsService';
 import Spinner from '../../Spinner/Spinner';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
-class NewsList extends Component {
+const NewsList = (props) => {
 
-            
-    state = {        
-        arr: [],
-        loading: true,
-        error: false,
-        newsItem: 9,
-     };
+    const [arr, setNewsArr] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [newsItem, setNewsItem] = useState (9); 
+  
 
-    componentDidMount(){
-        this.updateChar();
+    const newsService = new NewsService();
+
+    useEffect(()=>{
+        updateNews();
+    }, []);
+        
+
+    const onNewsLoading = () => {
+        setLoading(true);
     }
 
-    newsService = new NewsService();
-
-    onNewsLoading() {
-        this.setState ({
-            loading: true,
-        })
-    }
-
-    componentDidUpdate(prevProps, prevState){
-        if(this.props.newsItem !== prevProps.newsItem) {
-            this.updateChar();
-        }
-
-    }
-
-    updateChar=()=> {
-
-        this.onNewsLoading();
-        this.newsService
+    const updateNews=()=> {
+        onNewsLoading();
+        newsService
             .getAllNews()
             .then(res => {
-               // console.log(res)
-                this.setState({
-                    arr: res.articles,
-                    loading: false,
-                    newsItemLoading: false,
-
-                }) 
-            })
-            .catch(this.onError)
-            
-}
-
-onError =()=> {
-    //console.log(`error`)
-    this.setState({
-            loading: false,
-            error: true,
-        })
-
-}
-
-    itemRefs = [];
-
-    setRef = (ref) => {
-        this.itemRefs.push(ref);
-        console.log(ref)
+            // console.log(res)
+                setNewsArr(res.articles);
+                setLoading(false);
+                
+             }) 
+             .catch(onError)
+                
     }
 
-    
-
-    focusOnItem = (id) => {
-        this.itemRefs.forEach(item => item.classList.remove('char__item_selected'));
-        this.itemRefs[id].classList.add('char__item_selected');
-        this.itemRefs[id].focus();
+    const onError =()=> {
+        //console.log(`error`)
+            setLoading(false);
+            setError(true);
     }
 
-    renderItems(arr, newsItem) {
-        //console.log(newsItem)
+    const itemRefs = useRef([]);
+
+    const focusOnItem = (id) => {
+            itemRefs.current.forEach(item => item.classList.remove('char__item_selected'));
+            itemRefs.current[id].classList.add('char__item_selected');
+            itemRefs.current[id].focus();
+    }
+
+    function renderItems (arr, newsItem) {
+            //console.log(newsItem)
 
         const items =  arr.map((item, index) => {
             if (index < newsItem) {
             return (
-                <li 
-                    className="char__item"
+                <li className="char__item"
+                    ref={item => itemRefs.current[index] = item}
                     key={index} 
                     onClick={() => { 
-                        this.props.onNewsSelected(index);
-                        this.focusOnItem(index);}}
-                    tabIndex={0}
-                    ref={this.setRef}
-                    key={index}
-                       onKeyPress={(e) => {
-                        if (e.key === ' ' || e.key === "Enter") {
-                             this.props.onNewsSelected(index);
-                        this.focusOnItem(index);}}}>
-                        <img src={item.urlToImage} alt="news photo"/>
-                        <div className="char__name">{item.title}</div>
-                </li>
-            )}
-        });
-        // А эта конструкция вынесена для центровки спиннера/ошибки
-        return (
-            <ul className="char__grid">
-                {items}
-            </ul>
-        )
-    }
-    render() {
-
-        const {loading, error,arr, newsItem, newsItemLoading} = this.state;
-        const items = this.renderItems(arr, newsItem);
+                            props.onNewsSelected(index);
+                            focusOnItem(index);}}
+                        tabIndex={0}
+                        key={index}
+                        onKeyPress={(e) => {
+                            if (e.key === ' ' || e.key === "Enter") {
+                                 props.onNewsSelected(index);
+                                 focusOnItem(index);}}}>
+                            <img src={item.urlToImage} alt="news photo"/>
+                            <div className="char__name">{item.title}</div>
+                    </li>
+                )}
+            });
+            // Конструкция вынесена для центровки спиннера/ошибки
+            return (
+                <ul className="char__grid">
+                    {items}
+                </ul>
+            )
+        }
+        
+        const items = renderItems(arr, newsItem);
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? items : null;
 
-            
         return ( <div className="char__list">
                         {errorMessage}
                         {spinner}
                         {content}
-                    <button 
-                    className="button button__main button__long"
-                    onClick={()=>this.setState({newsItem: newsItem + 3})}
-                    style={{'display': newsItem >= 20 ? 'none' : 'block'}}>
-                        <div className="inner">load more</div>
-                    </button>
-                 </div>
-    )
-}
+                        <button 
+                        className="button button__main button__long"
+                        onClick={()=>setNewsItem(newsItem + 3)}
+                        style={{'display': newsItem >= 20 ? 'none' : 'block'}}>
+                            <div className="inner">load more</div>
+                        </button>
+                     </div>
+        )
 }
 
 export default NewsList;
