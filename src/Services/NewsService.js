@@ -1,27 +1,23 @@
+import {useHttp} from '../hooks/http.hook';
 
-class NewsService {
 
-	_apiBase = "https://newsapi.org/v2/top-headlines?country=ua&apiKey=f7641b7094da4a27afa113370148874e";
+const useNewsService = () => {
 
-	getResourse = async (url) => {
-		let res = await fetch(url);
+	const {loading, request, error, clearError} = useHttp();
 
-		if(!res.ok) {
-			throw new Error (`Could not fetch ${url}, status ${res.status}`);
-		}
-//console.log(res)
-		return await res.json();
+	const apiBase = "https://newsapi.org/v2/top-headlines?country=ua&apiKey=f7641b7094da4a27afa113370148874e";
+
+
+
+	const getAllNews = async () => {
+		return await request(apiBase);
 	}
 
-	getAllNews = async () => {
-		return this.getResourse(`${this._apiBase}`);
-	}
-
-
-
+	
+ return {loading, error, getAllNews}
 	
 
 }
 
-export default NewsService;
+export default useNewsService;
 

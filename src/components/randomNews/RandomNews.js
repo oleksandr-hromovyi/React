@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import './randomNews.scss';
 import newsIcon from '../../resources/img/newsIcon.png';
-import NewsService from '../../Services/NewsService';
+import useNewsService from '../../Services/NewsService';
 import Spinner from '../../Spinner/Spinner';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
@@ -15,8 +15,7 @@ const RandomNews =(props) => {
        const [url, setUrl] = useState(null);
        const [urlToImage, setUrlToImage] = useState(null);
        const [publishedAt, setPublishedAt] = useState(null);
-       const [loading,  setLoading] = useState(true);
-       const [error, setError] = useState(false);
+      
        
      
    useEffect (()=>{
@@ -24,18 +23,11 @@ const RandomNews =(props) => {
     
    },[])
 
-   const newsService = new NewsService();
+   const {loading, error, getAllNews} = useNewsService();
 
-    const onNewsLoading = ()=> {
-       setLoading(true);
-    }
-
-
-    const updateNews=()=> {
+      const updateNews=()=> {
        let id = Math.floor(Math.random() * (20 - 0) + 0);
-        onNewsLoading();
-        newsService
-            .getAllNews()
+            getAllNews()
             .then(res => {
                 setAuthor(res.articles[id].author);
                 setTitle(res.articles[id].title);
@@ -43,26 +35,18 @@ const RandomNews =(props) => {
                 setUrl(res.articles[id].url)
                 setUrlToImage(res.articles[id].urlToImage);
                 setPublishedAt(res.articles[id].publishedAt);
-                setLoading(false)
-            })
-            .catch(onError)
+             })
+         
     }
 
-   const onError =()=> {
-        console.log(`error`)
-                setLoading(false);
-                setError(true);
-    }
-
-
-
+   
     const getFormattedDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleString(); }
         
     let infoBlock =  <div className="randomchar__block">
-        {urlToImage &&  <img src={urlToImage} alt="Random news" className="randomchar__img"/>}
-
+      
+{urlToImage ? <img src={urlToImage} className="randomchar__img" alt="news photo"/> : <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"  className="randomchar__img" alt="no image available"/ >}
             <div className="randomchar__info">
                 <span className="randomchar__date">{getFormattedDate(publishedAt)}</span>
                     <p className="randomchar__newsTitle">{title}</p>
@@ -83,9 +67,6 @@ const RandomNews =(props) => {
           {/*  {error ? <ErrorMessage/> : null} */}
             {!(error || loading) ? infoBlock : null}
 
-
-
-                
                 <div className="randomchar__static">
                     <p className="randomchar__title">
                         Random news for today!<br/>

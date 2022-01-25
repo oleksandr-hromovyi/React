@@ -1,46 +1,28 @@
 import { useState, useEffect, useRef} from 'react';
 import './newsList.scss';
-import NewsService from '../../Services/NewsService';
+import useNewsService from '../../Services/NewsService';
 import Spinner from '../../Spinner/Spinner';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 const NewsList = (props) => {
 
     const [arr, setNewsArr] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
     const [newsItem, setNewsItem] = useState (9); 
   
 
-    const newsService = new NewsService();
+    const {loading, error, getAllNews} = useNewsService();
 
     useEffect(()=>{
         updateNews();
     }, []);
         
 
-    const onNewsLoading = () => {
-        setLoading(true);
-    }
-
     const updateNews=()=> {
-        onNewsLoading();
-        newsService
-            .getAllNews()
+            getAllNews()
             .then(res => {
             // console.log(res)
-                setNewsArr(res.articles);
-                setLoading(false);
-                
+            setNewsArr(res.articles);
              }) 
-             .catch(onError)
-                
-    }
-
-    const onError =()=> {
-        //console.log(`error`)
-            setLoading(false);
-            setError(true);
     }
 
     const itemRefs = useRef([]);
@@ -69,8 +51,8 @@ const NewsList = (props) => {
                             if (e.key === ' ' || e.key === "Enter") {
                                  props.onNewsSelected(index);
                                  focusOnItem(index);}}}>
-                            <img src={item.urlToImage} alt="news photo"/>
-                            <div className="char__name">{item.title}</div>
+                            {item.urlToImage ? <img src={item.urlToImage} alt="news photo"/> : <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg" alt="no image available"/ >}
+                            <div className="char__name">{item.title}  </div>
                     </li>
                 )}
             });

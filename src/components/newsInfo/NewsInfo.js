@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './newsInfo.scss';
-import NewsService from '../../Services/NewsService';
+import useNewsService from '../../Services/NewsService';
 import Spinner from '../../Spinner/Spinner';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
@@ -8,17 +8,13 @@ import Skeleton from '../skeleton/Skeleton';
 const NewsInfo = (props) => {
         
     const [arr, setNewsArr] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+   
 
-
-    const newsService = new NewsService();
+    const {loading, error, getAllNews} = useNewsService();
 
     useEffect(()=> {
         updateNews()
     }, [props.newsId])
-
-
 
 
     const updateNews =()=> {
@@ -26,27 +22,13 @@ const NewsInfo = (props) => {
         if(!newsId && newsId !==0) {
             return;
         }
-        onNewsLoading();
-        newsService
-            .getAllNews(newsId)
+         
+            getAllNews(newsId)
             .then(res => {
                 //console.log(res)
                 setNewsArr(res.articles[newsId]);
                 //console.log(res.articles[newsId])
-                setLoading(false);
-            })
-            .catch(onError)
-    }
-
-
-    const onNewsLoading = () => {
-        setLoading(true);
-    }
-
-    const onError =()=> {
-    console.log(`error`)
-        setLoading(false);
-        setError(true);
+        })
     }
 
     const skeleton = arr || loading || error ? null : <Skeleton/>;
@@ -67,8 +49,8 @@ const View = ({arr}) => {
     return (
         <>
         <div className="char__basics">
-                <img src={arr.urlToImage} alt="news icon"/>
-                <div>
+        {arr.urlToImage ? <img src={arr.urlToImage} alt="news icon"/> : <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg" alt="no image available"/ >}
+           <div>
                     <div className="char__info-name">{arr.title}</div>
                     <div className="char__btns">
                         <a href={arr.url} className="button button__main" target="_blank" rel="noreferrer">
@@ -83,6 +65,5 @@ const View = ({arr}) => {
         </>
         )
 }
-
 
 export default NewsInfo;

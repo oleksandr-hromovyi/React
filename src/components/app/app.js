@@ -22,8 +22,9 @@ const App = () => {
                 <RandomNews/>
                 <div className="char__content">
                     <NewsList onNewsSelected={onNewsSelected}/>
-                    <NewsInfo newsId={selectedNews}/>
+                   <NewsInfo newsId={selectedNews}/>
                 </div>
+            
                 <img className="bg-decoration" src={decoration} alt="newspaper" height="200px"/>
             </main>
         </div>
